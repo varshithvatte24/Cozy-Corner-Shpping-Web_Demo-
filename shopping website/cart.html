@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="catalog.html">Catalog</a></li>
+                <li><a href="cart.html" aria-current="page">Cart</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="cart">
+            <h1>Your Shopping Cart</h1>
+            <div id="cart-items"></div>
+            <div id="cart-total"></div>
+            <button id="clear-cart" class="button" style="margin-top: 20px;">Clear Cart</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Company Name</p>
+    </footer>
+
+    <script>
+        const cartItemsDiv = document.getElementById('cart-items');
+        const cartTotalDiv = document.getElementById('cart-total');
+        const clearCartBtn = document.getElementById('clear-cart');
+
+        function renderCart() {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cartItemsDiv.innerHTML = '';
+
+            if (cart.length === 0) {
+                cartItemsDiv.innerHTML = '<p>Your cart is empty.</p>';
+                cartTotalDiv.textContent = '';
+                clearCartBtn.style.display = 'none';
+                return;
+            }
+
+            clearCartBtn.style.display = 'inline-block';
+
+            const table = document.createElement('table');
+            table.classList.add('cart-table');
+
+            // Table headers
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            `;
+
+            const tbody = document.createElement('tbody');
+
+            let total = 0;
+
+            cart.forEach(item => {
+                const subtotal = item.price * item.quantity;
+                total += subtotal;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>$${item.price.toFixed(2)}</td>
+                    <td>
+                        <input type="number" min="1" value="${item.quantity}" data-id="${item.id}" class="quantity-input" />
+                    </td>
+                    <td>$${subtotal.toFixed(2)}</td>
+                    <td><button class="remove-btn" data-id="${item.id}">Remove</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            table.appendChild(tbody);
+            cartItemsDiv.appendChild(table);
+
+            cartTotalDiv.innerHTML = `<strong>Total: $${total.toFixed(2)}</strong>`;
+
+            // Add event listeners for quantity changes
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', e => {
+                    const newQuantity = parseInt(e.target.value);
+                    const id = e.target.getAttribute('data-id');
+                    if (newQuantity < 1 || isNaN(newQuantity)) {
+                        e.target.value = 1;
+                        return;
+                    }
+                    updateQuantity(id, newQuantity);
+                });
+            });
+
+            // Add event listeners for remove buttons
+            document.querySelectorAll('.remove-btn').forEach(button => {
+                button.addEventListener('click', e => {
+                    const id = e.target.getAttribute('data-id');
+                    removeFromCart(id);
+                });
+            });
+        }
+
+        function updateQuantity(id, quantity) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.quantity = quantity;
+                localStorage.setItem('cart', JSON.stringify(cart));
+                renderCart();
+            }
+        }
+
+        function removeFromCart(id) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart = cart.filter(i => i.id !== id);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            renderCart();
+        }
+
+        clearCartBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear the cart?')) {
+                localStorage.removeItem('cart');
+                renderCart();
+            }
+        });
+
+        // Initial render
+        renderCart();
+    </script>
+</body>
+</html>

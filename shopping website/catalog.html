@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Catalog Page</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="catalog.html" aria-current="page">Catalog</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="catalog">
+            <h1>Our Catalog</h1>
+            <div class="product-list">
+                <div class="product" data-id="1" data-name="Fridge" data-price="29.99">
+                    <img src="./images/fridge.png" alt="Fridge" />
+                    <h3>Fridge</h3>
+                    <p>$29.99</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+                <div class="product" data-id="2" data-name="TV" data-price="49.99">
+                    <img src="./images/tv.png" alt="TV" />
+                    <h3>TV</h3>
+                    <p>$49.99</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+                <div class="product" data-id="3" data-name="Sofa" data-price="19.99">
+                    <img src="./images/sofa.png" alt="Sofa" />
+                    <h3>Sofa</h3>
+                    <p>$19.99</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Company Name</p>
+    </footer>
+
+    <script>
+        // Add to Cart functionality
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', () => {
+                const productDiv = button.closest('.product');
+                const id = productDiv.getAttribute('data-id');
+                const name = productDiv.getAttribute('data-name');
+                const price = parseFloat(productDiv.getAttribute('data-price'));
+
+                // Get current cart or empty array
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+                // Check if product already in cart
+                const existingProduct = cart.find(item => item.id === id);
+                if (existingProduct) {
+                    existingProduct.quantity += 1;
+                } else {
+                    cart.push({ id, name, price, quantity: 1 });
+                }
+
+                // Save cart back to localStorage
+                localStorage.setItem('cart', JSON.stringify(cart));
+
+                alert(`${name} added to cart!`);
+            });
+        });
+    </script>
+</body>
+</html>
